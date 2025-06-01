@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitTracker Pro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .setup-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: #555;
+        }
+
+        input, select, textarea {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .workout-form {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 15px;
+            align-items: end;
+            margin-bottom: 20px;
+        }
+
+        .workout-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .workout-item {
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+            position: relative;
+        }
+
+        .workout-item h4 {
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .workout-item p {
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .workout-item .date {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .delete-btn {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.5s ease;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .bmi-indicator {
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .bmi-underweight { background: #74b9ff; color: white; }
+        .bmi-normal { background: #00b894; color: white; }
+        .bmi-overweight { background: #fdcb6e; color: #333; }
+        .bmi-obese { background: #e17055; color: white; }
+
+        .goal-prediction {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .workout-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .setup-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏋️ FitTracker Pro</h1>
+            <p>Il tuo compagno di allenamento personalizzato</p>
+        </div>
+
+        <!-- Setup iniziale -->
+        <div id="setupSection" class="card">
+            <h2>🔧 Configurazione Profilo</h2>
+            <div class="setup-form">
+                <div class="form-group">
+                    <label for="name">Nome:</label>
+                    <input type="text" id="name" placeholder="Il tuo nome">
+                </div>
+                <div class="form-group">
+                    <label for="age">Età:</label>
+                    <input type="number" id="age" min="13" max="100" placeholder="Anni">
+                </div>
+                <div class="form-group">
+                    <label for="height">Altezza (cm):</label>
+                    <input type="number" id="height" min="100" max="250" placeholder="Centimetri">
+                </div>
+                <div class="form-group">
+                    <label for="weight">Peso (kg):</label>
+                    <input type="number" id="weight" min="30" max="300" step="0.1" placeholder="Chilogrammi">
+                </div>
+                <div class="form-group">
+                    <label for="gender">Sesso:</label>
+                    <select id="gender">
+                        <option value="male">Maschio</option>
+                        <option value="female">Femmina</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="goal">Obiettivo:</label>
+                    <select id="goal">
+                        <option value="lose">Perdere Peso</option>
+                        <option value="gain">Aumentare Massa</option>
+                        <option value="maintain">Mantenere Forma</option>
+                        <option value="strength">Aumentare Forza</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="targetWeight">Peso Obiettivo (kg):</label>
+                    <input type="number" id="targetWeight" min="30" max="300" step="0.1" placeholder="Peso desiderato">
+                </div>
+                <div class="form-group">
+                    <label for="activityLevel">Livello Attività:</label>
+                    <select id="activityLevel">
+                        <option value="sedentary">Sedentario</option>
+                        <option value="light">Attività Leggera</option>
+                        <option value="moderate">Attività Moderata</option>
+                        <option value="active">Molto Attivo</option>
+                        <option value="extra">Estremamente Attivo</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="saveProfile()">💾 Salva Profilo</button>
+        </div>
+
+        <!-- Dashboard principale -->
+        <div id="dashboardSection" class="hidden">
+            <!-- Statistiche -->
+            <div class="card">
+                <h2>📊 Le Tue Statistiche</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalWorkouts">0</div>
+                        <div>Allenamenti</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="currentWeight">0</div>
+                        <div>Peso Attuale</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="bmiValue">0</div>
+                        <div>BMI</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="daysActive">0</div>
+                        <div>Giorni Attivi</div>
+                    </div>
+                </div>
+                <div id="bmiIndicator" class="bmi-indicator"></div>
+                <div id="goalPrediction" class="goal-prediction"></div>
+            </div>
+
+            <!-- Nuovo allenamento -->
+            <div class="card">
+                <h2>➕ Nuovo Allenamento</h2>
+                <div class="workout-form">
+                    <div class="form-group">
+                        <label for="exerciseName">Esercizio:</label>
+                        <input type="text" id="exerciseName" placeholder="Nome esercizio">
+                    </div>
+                    <div class="form-group">
+                        <label for="exerciseDescription">Descrizione:</label>
+                        <textarea id="exerciseDescription" rows="3" placeholder="Serie, ripetizioni, peso, note..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="exerciseDuration">Durata (min):</label>
+                        <input type="number" id="exerciseDuration" min="1" max="300" placeholder="Minuti">
+                    </div>
+                </div>
+                <button onclick="addWorkout()">🏋️ Aggiungi Allenamento</button>
+            </div>
+
+            <!-- Aggiorna peso -->
+            <div class="card">
+                <h2>⚖️ Aggiorna Peso</h2>
+                <div style="display: flex; gap: 20px; align-items: end;">
+                    <div class="form-group" style="flex: 1;">
+                        <label for="newWeight">Nuovo Peso (kg):</label>
+                        <input type="number" id="newWeight" step="0.1" placeholder="Peso attuale">
+                    </div>
+                    <button onclick="updateWeight()">📈 Aggiorna</button>
+                </div>
+            </div>
+
+            <!-- Lista allenamenti -->
+            <div class="card">
+                <h2>📋 Cronologia Allenamenti</h2>
+                <div id="workoutList" class="workout-list">
+                    <!-- Gli allenamenti verranno aggiunti qui dinamicamente -->
+                </div>
+            </div>
+
+            <!-- Reset dati -->
+            <div class="card">
+                <h2>🔄 Gestione Dati</h2>
+                <button onclick="resetData()" style="background: #ff4757;">🗑️ Reset Completo</button>
+                <button onclick="exportData()" style="background: #2ed573; margin-left: 10px;">📤 Esporta Dati</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variabili globali
+        let userData = {};
+        let workouts = [];
+        let weightHistory = [];
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+            if (isProfileComplete()) {
+                showDashboard();
+            }
+        });
+
+        // Gestione profilo
+        function saveProfile() {
+            const name = document.getElementById('name').value;
+            const age = parseInt(document.getElementById('age').value);
+            const height = parseInt(document.getElementById('height').value);
+            const weight = parseFloat(document.getElementById('weight').value);
+            const gender = document.getElementById('gender').value;
+            const goal = document.getElementById('goal').value;
+            const targetWeight = parseFloat(document.getElementById('targetWeight').value);
+            const activityLevel = document.getElementById('activityLevel').value;
+
+            if (!name || !age || !height || !weight || !targetWeight) {
+                alert('Per favore, compila tutti i campi obbligatori!');
+                return;
+            }
+
+            userData = {
+                name,
+                age,
+                height,
+                weight,
+                gender,
+                goal,
+                targetWeight,
+                activityLevel,
+                startDate: new Date().toISOString(),
+                startWeight: weight
+            };
+
+            // Inizializza la cronologia del peso
+            weightHistory = [{
+                weight: weight,
+                date: new Date().toISOString()
+            }];
+
+            saveData();
+            showDashboard();
+        }
+
+        function isProfileComplete() {
+            return userData && userData.name && userData.age && userData.height && userData.weight;
+        }
+
+        function showDashboard() {
+            document.getElementById('setupSection').classList.add('hidden');
+            document.getElementById('dashboardSection').classList.remove('hidden');
+            updateStats();
+            renderWorkouts();
+        }
+
+        // Gestione allenamenti
+        function addWorkout() {
+            const name = document.getElementById('exerciseName').value;
+            const description = document.getElementById('exerciseDescription').value;
+            const duration = parseInt(document.getElementById('exerciseDuration').value);
+
+            if (!name || !description) {
+                alert('Per favore, inserisci nome e descrizione dell\'esercizio!');
+                return;
+            }
+
+            const workout = {
+                id: Date.now(),
+                name,
+                description,
+                duration: duration || 0,
+                date: new Date().toISOString()
+            };
+
+            workouts.unshift(workout);
+            saveData();
+            updateStats();
+            renderWorkouts();
+
+            // Reset form
+            document.getElementById('exerciseName').value = '';
+            document.getElementById('exerciseDescription').value = '';
+            document.getElementById('exerciseDuration').value = '';
+        }
+
+        function deleteWorkout(id) {
+            if (confirm('Sei sicuro di voler eliminare questo allenamento?')) {
+                workouts = workouts.filter(w => w.id !== id);
+                saveData();
+                updateStats();
+                renderWorkouts();
+            }
+        }
+
+        function renderWorkouts() {
+            const container = document.getElementById('workoutList');
+            
+            if (workouts.length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Nessun allenamento registrato ancora.</p>';
+                return;
+            }
+
+            container.innerHTML = workouts.map(workout => {
+                const date = new Date(workout.date);
+                const dateStr = date.toLocaleDateString('it-IT');
+                const timeStr = date.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+                
+                return `
+                    <div class="workout-item">
+                        <div class="date">${dateStr} ${timeStr}</div>
+                        <h4>${workout.name}</h4>
+                        <p><strong>Descrizione:</strong> ${workout.description}</p>
+                        ${workout.duration > 0 ? `<p><strong>Durata:</strong> ${workout.duration} minuti</p>` : ''}
+                        <button class="delete-btn" onclick="deleteWorkout(${workout.id})">Elimina</button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Gestione peso
+        function updateWeight() {
+            const newWeight = parseFloat(document.getElementById('newWeight').value);
+            
+            if (!newWeight || newWeight <= 0) {
+                alert('Inserisci un peso valido!');
+                return;
+            }
+
+            userData.weight = newWeight;
+            weightHistory.push({
+                weight: newWeight,
+                date: new Date().toISOString()
+            });
+
+            saveData();
+            updateStats();
+            document.getElementById('newWeight').value = '';
+        }
+
+        // Calcoli e statistiche
+        function calculateBMI() {
+            const heightM = userData.height / 100;
+            return (userData.weight / (heightM * heightM)).toFixed(1);
+        }
+
+        function getBMICategory(bmi) {
+            if (bmi < 18.5) return { category: 'underweight', text: 'Sottopeso' };
+            if (bmi < 25) return { category: 'normal', text: 'Normopeso' };
+            if (bmi < 30) return { category: 'overweight', text: 'Sovrappeso' };
+            return { category: 'obese', text: 'Obeso' };
+        }
+
+        function calculateGoalPrediction() {
+            const weightDiff = Math.abs(userData.targetWeight - userData.weight);
+            const isLosing = userData.weight > userData.targetWeight;
+            
+            // Calcolo del metabolismo basale
+            let bmr;
+            if (userData.gender === 'male') {
+                bmr = 88.362 + (13.397 * userData.weight) + (4.799 * userData.height) - (5.677 * userData.age);
+            } else {
+                bmr = 447.593 + (9.247 * userData.weight) + (3.098 * userData.height) - (4.330 * userData.age);
+            }
+
+            // Fattore di attività
+            const activityFactors = {
+                sedentary: 1.2,
+                light: 1.375,
+                moderate: 1.55,
+                active: 1.725,
+                extra: 1.9
+            };
+
+            const tdee = bmr * activityFactors[userData.activityLevel];
+            
+            // Stima del tempo necessario
+            let weeksNeeded;
+            if (isLosing) {
+                // Per perdere peso: deficit di ~500 kcal/giorno = ~0.5kg/settimana
+                weeksNeeded = Math.ceil(weightDiff / 0.5);
+            } else {
+                // Per aumentare peso: surplus di ~300 kcal/giorno = ~0.3kg/settimana
+                weeksNeeded = Math.ceil(weightDiff / 0.3);
+            }
+
+            return {
+                weeks: weeksNeeded,
+                months: Math.ceil(weeksNeeded / 4),
+                tdee: Math.round(tdee),
+                recommendation: getRecommendation(isLosing, userData.goal)
+            };
+        }
+
+        function getRecommendation(isLosing, goal) {
+            if (goal === 'lose') {
+                return 'Concentrati su cardio e allenamenti ad alta intensità. Mantieni un deficit calorico moderato.';
+            } else if (goal === 'gain') {
+                return 'Prioritizza allenamenti di forza e consumo proteico. Mantieni un surplus calorico controllato.';
+            } else if (goal === 'strength') {
+                return 'Focalizzati su allenamenti di forza progressivi. Mantieni un\'alimentazione bilanciata.';
+            } else {
+                return 'Combina allenamenti di forza e cardio. Mantieni un\'alimentazione equilibrata.';
+            }
+        }
+
+        function updateStats() {
+            const totalWorkouts = workouts.length;
+            const currentWeight = userData.weight;
+            const bmi = calculateBMI();
+            const bmiCategory = getBMICategory(parseFloat(bmi));
+            
+            // Calcola giorni attivi
+            const uniqueDays = new Set();
+            workouts.forEach(workout => {
+                const date = new Date(workout.date).toDateString();
+                uniqueDays.add(date);
+            });
+            const daysActive = uniqueDays.size;
+
+            // Aggiorna DOM
+            document.getElementById('totalWorkouts').textContent = totalWorkouts;
+            document.getElementById('currentWeight').textContent = currentWeight + ' kg';
+            document.getElementById('bmiValue').textContent = bmi;
+            document.getElementById('daysActive').textContent = daysActive;
+
+            // Indicatore BMI
+            const bmiIndicator = document.getElementById('bmiIndicator');
+            bmiIndicator.textContent = `BMI: ${bmi} - ${bmiCategory.text}`;
+            bmiIndicator.className = `bmi-indicator bmi-${bmiCategory.category}`;
+
+            // Predizione obiettivo
+            const prediction = calculateGoalPrediction();
+            const goalPrediction = document.getElementById('goalPrediction');
+            goalPrediction.innerHTML = `
+                <h3>🎯 Previsione Obiettivo</h3>
+                <p><strong>Tempo stimato:</strong> ${prediction.weeks} settimane (${prediction.months} mesi)</p>
+                <p><strong>Metabolismo:</strong> ${prediction.tdee} kcal/giorno</p>
+                <p><strong>Consiglio:</strong> ${prediction.recommendation}</p>
+            `;
+        }
+
+        // Gestione dati localStorage
+        function saveData() {
+            localStorage.setItem('fitTracker_userData', JSON.stringify(userData));
+            localStorage.setItem('fitTracker_workouts', JSON.stringify(workouts));
+            localStorage.setItem('fitTracker_weightHistory', JSON.stringify(weightHistory));
+        }
+
+        function loadData() {
+            try {
+                const savedUserData = localStorage.getItem('fitTracker_userData');
+                const savedWorkouts = localStorage.getItem('fitTracker_workouts');
+                const savedWeightHistory = localStorage.getItem('fitTracker_weightHistory');
+
+                if (savedUserData) {
+                    userData = JSON.parse(savedUserData);
+                    // Popola i campi del form
+                    if (userData.name) document.getElementById('name').value = userData.name;
+                    if (userData.age) document.getElementById('age').value = userData.age;
+                    if (userData.height) document.getElementById('height').value = userData.height;
+                    if (userData.weight) document.getElementById('weight').value = userData.weight;
+                    if (userData.gender) document.getElementById('gender').value = userData.gender;
+                    if (userData.goal) document.getElementById('goal').value = userData.goal;
+                    if (userData.targetWeight) document.getElementById('targetWeight').value = userData.targetWeight;
+                    if (userData.activityLevel) document.getElementById('activityLevel').value = userData.activityLevel;
+                }
+
+                if (savedWorkouts) {
+                    workouts = JSON.parse(savedWorkouts);
+                }
+
+                if (savedWeightHistory) {
+                    weightHistory = JSON.parse(savedWeightHistory);
+                } else if (userData.weight) {
+                    // Inizializza la cronologia del peso se non esiste
+                    weightHistory = [{
+                        weight: userData.weight,
+                        date: userData.startDate || new Date().toISOString()
+                    }];
+                }
+            } catch (error) {
+                console.error('Errore nel caricamento dei dati:', error);
+                // Inizializza con dati vuoti se c'è un errore
+                userData = {};
+                workouts = [];
+                weightHistory = [];
+            }
+        }
+
+        function resetData() {
+            if (confirm('ATTENZIONE: Questa azione eliminerà tutti i tuoi dati salvati. Sei sicuro?')) {
+                if (confirm('Confermi di voler eliminare TUTTI i dati? Questa azione è irreversibile!')) {
+                    localStorage.removeItem('fitTracker_userData');
+                    localStorage.removeItem('fitTracker_workouts');
+                    localStorage.removeItem('fitTracker_weightHistory');
+                    
+                    userData = {};
+                    workouts = [];
+                    weightHistory = [];
+                    
+                    document.getElementById('setupSection').classList.remove('hidden');
+                    document.getElementById('dashboardSection').classList.add('hidden');
+                    
+                    // Reset form
+                    document.getElementById('name').value = '';
+                    document.getElementById('age').value = '';
+                    document.getElementById('height').value = '';
+                    document.getElementById('weight').value = '';
+                    document.getElementById('targetWeight').value = '';
+                    
+                    alert('Dati eliminati con successo!');
+                }
+            }
+        }
+
+        function exportData() {
+            const dataToExport = {
+                userData,
+                workouts,
+                weightHistory,
+                exportDate: new Date().toISOString()
+            };
+            
+            const dataStr = JSON.stringify(dataToExport, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `fittracker_backup_${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+        }
+    </script>
+</body>
+</html>
