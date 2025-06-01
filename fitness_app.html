@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="FitTracker Pro">
+    <meta name="theme-color" content="#667eea">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' fill='%23667eea'/%3E%3Ctext y='70' font-size='60' text-anchor='middle' x='50' fill='white'%3E🏋️%3C/text%3E%3C/svg%3E">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiRml0VHJhY2tlciBQcm8iLCJzaG9ydF9uYW1lIjoiRml0VHJhY2tlciIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjNjY3ZWVhIiwidGhlbWVfY29sb3IiOiIjNjY3ZWVhIiwiaWNvbnMiOlt7InNyYyI6ImRhdGE6aW1hZ2Uvc3ZnK3htbCwlM0NzdmcgeG1sbnM9J2h0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnJyB2aWV3Qm94PScwIDAgMTAwIDEwMCclM0UlM0NyZWN0IHdpZHRoPScxMDAnIGhlaWdodD0nMTAwJyBmaWxsPSclMjM2NjdlZWEnLyUzRSUzQ3RleHQgeT0nNzAnIGZvbnQtc2l6ZT0nNjAnIHRleHQtYW5jaG9yPSdtaWRkbGUnIHg9JzUwJyBmaWxsPSd3aGl0ZSclM0UlRjAlOUYlOEYlOEYlRUYlQjglOEYlM0MvdGV4dCUzRSUzQy9zdmclM0UiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2Uvc3ZnK3htbCJ9XX0=">
     <title>FitTracker Pro</title>
     <style>
         * {
@@ -370,8 +376,36 @@
         let workouts = [];
         let weightHistory = [];
 
+        // Sistema di autenticazione semplice
+        function checkAuth() {
+            const savedPassword = localStorage.getItem('fitTracker_password');
+            if (!savedPassword) {
+                const password = prompt('Imposta una password per proteggere la tua app:');
+                if (password && password.length >= 4) {
+                    localStorage.setItem('fitTracker_password', password);
+                    return true;
+                } else {
+                    alert('Password troppo corta! Minimo 4 caratteri.');
+                    return checkAuth();
+                }
+            } else {
+                const inputPassword = prompt('Inserisci la password per accedere:');
+                if (inputPassword === savedPassword) {
+                    return true;
+                } else {
+                    alert('Password errata!');
+                    return false;
+                }
+            }
+        }
+
         // Inizializzazione
         document.addEventListener('DOMContentLoaded', function() {
+            if (!checkAuth()) {
+                document.body.innerHTML = '<div style="text-align:center;padding:50px;color:white;"><h1>Accesso Negato</h1></div>';
+                return;
+            }
+            
             loadData();
             if (isProfileComplete()) {
                 showDashboard();
