@@ -114,15 +114,6 @@
             box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .btn-logout {
-            background: linear-gradient(135deg, #e53e3e, #c53030);
-            width: auto;
-            padding: 10px 20px;
-            font-size: 0.9rem;
-            margin: 0;
-            float: right;
-        }
-
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -232,44 +223,6 @@
             transform: translateY(-2px);
         }
 
-        /* Login/Registration styles */
-        .auth-card {
-            max-width: 400px;
-            margin: 50px auto;
-        }
-
-        .auth-toggle {
-            text-align: center;
-            margin-top: 20px;
-            color: #667eea;
-            cursor: pointer;
-            text-decoration: underline;
-        }
-
-        .history-section {
-            margin-top: 30px;
-            padding: 20px;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            border-radius: 15px;
-            color: white;
-        }
-
-        .history-item {
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 10px;
-        }
-
-        .user-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            color: white;
-            font-weight: 600;
-        }
-
         @media (max-width: 768px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -282,365 +235,146 @@
             .form-grid {
                 grid-template-columns: 1fr;
             }
-
-            .user-info {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .btn-logout {
-                float: none;
-                width: 100%;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Schermata di autenticazione -->
-        <div id="auth-screen">
-            <div class="header">
-                <h1>💪 FitTracker Pro</h1>
-                <p>Il tuo compagno fitness intelligente</p>
-            </div>
+        <div class="header">
+            <h1>💪 FitTracker Pro</h1>
+            <p>Il tuo compagno fitness intelligente</p>
+        </div>
 
-            <div id="login-card" class="card auth-card">
-                <h2>🔐 Accesso</h2>
-                <div class="form-group">
-                    <label for="login-password">Password:</label>
-                    <input type="password" id="login-password" placeholder="Inserisci la tua password">
-                </div>
-                <button class="btn" onclick="login()">🚀 Accedi</button>
-                <div class="auth-toggle" onclick="showRegister()">Prima volta? Crea una password</div>
-            </div>
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('setup')">📝 Setup</button>
+            <button class="tab" onclick="showTab('stats')">📊 Statistiche</button>
+            <button class="tab" onclick="showTab('nutrition')">🍎 Nutrizione</button>
+            <button class="tab" onclick="showTab('progress')">🎯 Progresso</button>
+        </div>
 
-            <div id="register-card" class="card auth-card hidden">
-                <h2>📝 Prima configurazione</h2>
+        <!-- Setup -->
+        <div id="setup-tab" class="card">
+            <h2>📝 Configurazione Profilo</h2>
+            <div class="form-grid">
                 <div class="form-group">
-                    <label for="new-password">Crea una password:</label>
-                    <input type="password" id="new-password" placeholder="Scegli una password sicura">
+                    <label for="age">Età (anni):</label>
+                    <input type="number" id="age" min="13" max="100" placeholder="25" value="25">
                 </div>
                 <div class="form-group">
-                    <label for="confirm-password">Conferma password:</label>
-                    <input type="password" id="confirm-password" placeholder="Ripeti la password">
+                    <label for="gender">Sesso:</label>
+                    <select id="gender">
+                        <option value="male">Maschio</option>
+                        <option value="female">Femmina</option>
+                    </select>
                 </div>
-                <button class="btn" onclick="register()">🔒 Crea account</button>
-                <div class="auth-toggle" onclick="showLogin()">Hai già una password? Accedi</div>
+                <div class="form-group">
+                    <label for="height">Altezza (cm):</label>
+                    <input type="number" id="height" min="100" max="250" placeholder="170" value="170">
+                </div>
+                <div class="form-group">
+                    <label for="weight">Peso attuale (kg):</label>
+                    <input type="number" id="weight" min="30" max="300" step="0.1" placeholder="70" value="70">
+                </div>
+                <div class="form-group">
+                    <label for="activity">Livello attività:</label>
+                    <select id="activity">
+                        <option value="1.2">Sedentario</option>
+                        <option value="1.375">Leggermente attivo</option>
+                        <option value="1.55" selected>Moderatamente attivo</option>
+                        <option value="1.725">Molto attivo</option>
+                        <option value="1.9">Estremamente attivo</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="goal">Obiettivo:</label>
+                    <select id="goal">
+                        <option value="lose">Perdere peso</option>
+                        <option value="maintain" selected>Mantenere peso</option>
+                        <option value="gain">Aumentare peso</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn" onclick="calculateAll()">🚀 Calcola le tue metriche</button>
+        </div>
+
+        <!-- Statistiche -->
+        <div id="stats-tab" class="card hidden">
+            <h2>📊 Le Tue Metriche</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="bmi-value">0</div>
+                    <div class="stat-label">BMI</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="bmr-value">0</div>
+                    <div class="stat-label">BMR (kcal)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="tdee-value">0</div>
+                    <div class="stat-label">TDEE (kcal)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="target-value">0</div>
+                    <div class="stat-label">Calorie obiettivo</div>
+                </div>
+            </div>
+            <div id="bmi-indicator" class="bmi-indicator"></div>
+        </div>
+
+        <!-- Nutrizione -->
+        <div id="nutrition-tab" class="card hidden">
+            <h2>🍎 Piano Nutrizionale</h2>
+            <div class="macros-grid">
+                <div class="macro-card">
+                    <div style="font-size: 1.5rem; font-weight: 700;" id="protein-value">0g</div>
+                    <div>Proteine</div>
+                </div>
+                <div class="macro-card">
+                    <div style="font-size: 1.5rem; font-weight: 700;" id="carbs-value">0g</div>
+                    <div>Carboidrati</div>
+                </div>
+                <div class="macro-card">
+                    <div style="font-size: 1.5rem; font-weight: 700;" id="fats-value">0g</div>
+                    <div>Grassi</div>
+                </div>
             </div>
         </div>
 
-        <!-- Applicazione principale -->
-        <div id="main-app" class="hidden">
-            <div class="header">
-                <h1>💪 FitTracker Pro</h1>
-                <p>Il tuo compagno fitness intelligente</p>
+        <!-- Progresso -->
+        <div id="progress-tab" class="card hidden">
+            <h2>🎯 Simulazione Progresso</h2>
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label for="target-weight">Peso obiettivo (kg):</label>
+                <input type="number" id="target-weight" min="30" max="300" step="0.1" placeholder="65" value="65">
             </div>
-
-            <div class="user-info">
-                <div>Benvenuto nel tuo FitTracker personale!</div>
-                <button class="btn btn-logout" onclick="logout()">🚪 Esci</button>
-            </div>
-
-            <div class="tabs">
-                <button class="tab active" onclick="showTab('setup')">📝 Setup</button>
-                <button class="tab" onclick="showTab('stats')">📊 Statistiche</button>
-                <button class="tab" onclick="showTab('nutrition')">🍎 Nutrizione</button>
-                <button class="tab" onclick="showTab('progress')">🎯 Progresso</button>
-                <button class="tab" onclick="showTab('history')">📈 Storico</button>
-            </div>
-
-            <!-- Setup -->
-            <div id="setup-tab" class="card">
-                <h2>📝 Configurazione Profilo</h2>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label for="age">Età (anni):</label>
-                        <input type="number" id="age" min="13" max="100" placeholder="25" value="25">
-                    </div>
-                    <div class="form-group">
-                        <label for="gender">Sesso:</label>
-                        <select id="gender">
-                            <option value="male">Maschio</option>
-                            <option value="female">Femmina</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="height">Altezza (cm):</label>
-                        <input type="number" id="height" min="100" max="250" placeholder="170" value="170">
-                    </div>
-                    <div class="form-group">
-                        <label for="weight">Peso attuale (kg):</label>
-                        <input type="number" id="weight" min="30" max="300" step="0.1" placeholder="70" value="70">
-                    </div>
-                    <div class="form-group">
-                        <label for="activity">Livello attività:</label>
-                        <select id="activity">
-                            <option value="1.2">Sedentario</option>
-                            <option value="1.375">Leggermente attivo</option>
-                            <option value="1.55" selected>Moderatamente attivo</option>
-                            <option value="1.725">Molto attivo</option>
-                            <option value="1.9">Estremamente attivo</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="goal">Obiettivo:</label>
-                        <select id="goal">
-                            <option value="lose">Perdere peso</option>
-                            <option value="maintain" selected>Mantenere peso</option>
-                            <option value="gain">Aumentare peso</option>
-                        </select>
+            <button class="btn" onclick="calculateProgress()" style="margin-bottom: 20px;">📈 Calcola tempo stimato</button>
+            
+            <div id="progress-result" class="prediction-card hidden">
+                <h3 style="margin-bottom: 15px;">🎯 Previsioni</h3>
+                <div id="progress-text"></div>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
                     </div>
                 </div>
-                <button class="btn" onclick="calculateAll()">🚀 Calcola le tue metriche</button>
-            </div>
-
-            <!-- Statistiche -->
-            <div id="stats-tab" class="card hidden">
-                <h2>📊 Le Tue Metriche</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-value" id="bmi-value">0</div>
-                        <div class="stat-label">BMI</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="bmr-value">0</div>
-                        <div class="stat-label">BMR (kcal)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="tdee-value">0</div>
-                        <div class="stat-label">TDEE (kcal)</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-value" id="target-value">0</div>
-                        <div class="stat-label">Calorie obiettivo</div>
-                    </div>
-                </div>
-                <div id="bmi-indicator" class="bmi-indicator"></div>
-            </div>
-
-            <!-- Nutrizione -->
-            <div id="nutrition-tab" class="card hidden">
-                <h2>🍎 Piano Nutrizionale</h2>
-                <div class="macros-grid">
-                    <div class="macro-card">
-                        <div style="font-size: 1.5rem; font-weight: 700;" id="protein-value">0g</div>
-                        <div>Proteine</div>
-                    </div>
-                    <div class="macro-card">
-                        <div style="font-size: 1.5rem; font-weight: 700;" id="carbs-value">0g</div>
-                        <div>Carboidrati</div>
-                    </div>
-                    <div class="macro-card">
-                        <div style="font-size: 1.5rem; font-weight: 700;" id="fats-value">0g</div>
-                        <div>Grassi</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progresso -->
-            <div id="progress-tab" class="card hidden">
-                <h2>🎯 Simulazione Progresso</h2>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label for="target-weight">Peso obiettivo (kg):</label>
-                    <input type="number" id="target-weight" min="30" max="300" step="0.1" placeholder="65" value="65">
-                </div>
-                <button class="btn" onclick="calculateProgress()" style="margin-bottom: 20px;">📈 Calcola tempo stimato</button>
-                
-                <div id="progress-result" class="prediction-card hidden">
-                    <h3 style="margin-bottom: 15px;">🎯 Previsioni</h3>
-                    <div id="progress-text"></div>
-                    <div class="progress-container">
-                        <div class="progress-bar">
-                            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
-                        </div>
-                    </div>
-                    <div id="time-estimate"></div>
-                    <div id="recommendations" style="margin-top: 15px;"></div>
-                </div>
-            </div>
-
-            <!-- Storico -->
-            <div id="history-tab" class="card hidden">
-                <h2>📈 Storico delle Misurazioni</h2>
-                <div id="history-content">
-                    <p>Nessuna misurazione salvata ancora. Calcola le tue metriche per iniziare!</p>
-                </div>
-                <button class="btn" onclick="clearHistory()" style="background: linear-gradient(135deg, #e53e3e, #c53030); margin-top: 20px;">🗑️ Cancella storico</button>
+                <div id="time-estimate"></div>
+                <div id="recommendations" style="margin-top: 15px;"></div>
             </div>
         </div>
     </div>
 
     <script>
         let currentData = {};
-        let userHistory = [];
 
-        // Gestione autenticazione
-        function showLogin() {
-            document.getElementById('login-card').classList.remove('hidden');
-            document.getElementById('register-card').classList.add('hidden');
-        }
-
-        function showRegister() {
-            document.getElementById('login-card').classList.add('hidden');
-            document.getElementById('register-card').classList.remove('hidden');
-        }
-
-        function register() {
-            const password = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if (!password || password.length < 4) {
-                alert('La password deve essere di almeno 4 caratteri!');
-                return;
-            }
-
-            if (password !== confirmPassword) {
-                alert('Le password non coincidono!');
-                return;
-            }
-
-            // Salva la password (in un'app reale useresti hash)
-            localStorage.setItem('fittracker_password', password);
-            localStorage.setItem('fittracker_setup_complete', 'true');
-            
-            showMainApp();
-        }
-
-        function login() {
-            const password = document.getElementById('login-password').value;
-            const savedPassword = localStorage.getItem('fittracker_password');
-
-            if (!savedPassword) {
-                alert('Nessun account trovato. Crea prima una password!');
-                showRegister();
-                return;
-            }
-
-            if (password !== savedPassword) {
-                alert('Password errata!');
-                return;
-            }
-
-            showMainApp();
-        }
-
-        function logout() {
-            if (confirm('Sei sicuro di voler uscire?')) {
-                document.getElementById('auth-screen').classList.remove('hidden');
-                document.getElementById('main-app').classList.add('hidden');
-                document.getElementById('login-password').value = '';
-                showLogin();
-            }
-        }
-
-        function showMainApp() {
-            document.getElementById('auth-screen').classList.add('hidden');
-            document.getElementById('main-app').classList.remove('hidden');
-            loadUserData();
-            loadHistory();
-        }
-
-        // Gestione dati utente
-        function saveUserData() {
-            const userData = {
-                age: document.getElementById('age').value,
-                gender: document.getElementById('gender').value,
-                height: document.getElementById('height').value,
-                weight: document.getElementById('weight').value,
-                activity: document.getElementById('activity').value,
-                goal: document.getElementById('goal').value
-            };
-            localStorage.setItem('fittracker_userdata', JSON.stringify(userData));
-        }
-
-        function loadUserData() {
-            const savedData = localStorage.getItem('fittracker_userdata');
-            if (savedData) {
-                const userData = JSON.parse(savedData);
-                document.getElementById('age').value = userData.age || 25;
-                document.getElementById('gender').value = userData.gender || 'male';
-                document.getElementById('height').value = userData.height || 170;
-                document.getElementById('weight').value = userData.weight || 70;
-                document.getElementById('activity').value = userData.activity || 1.55;
-                document.getElementById('goal').value = userData.goal || 'maintain';
-            }
-        }
-
-        function saveToHistory() {
-            const entry = {
-                date: new Date().toLocaleDateString('it-IT'),
-                time: new Date().toLocaleTimeString('it-IT'),
-                weight: currentData.weight,
-                bmi: currentData.bmi,
-                bmr: currentData.bmr,
-                tdee: currentData.tdee,
-                targetCalories: currentData.targetCalories,
-                goal: currentData.goal
-            };
-
-            userHistory = JSON.parse(localStorage.getItem('fittracker_history') || '[]');
-            userHistory.unshift(entry); // Aggiungi all'inizio
-            
-            // Mantieni solo gli ultimi 50 record
-            if (userHistory.length > 50) {
-                userHistory = userHistory.slice(0, 50);
-            }
-            
-            localStorage.setItem('fittracker_history', JSON.stringify(userHistory));
-        }
-
-        function loadHistory() {
-            userHistory = JSON.parse(localStorage.getItem('fittracker_history') || '[]');
-            updateHistoryDisplay();
-        }
-
-        function updateHistoryDisplay() {
-            const historyContent = document.getElementById('history-content');
-            
-            if (userHistory.length === 0) {
-                historyContent.innerHTML = '<p>Nessuna misurazione salvata ancora. Calcola le tue metriche per iniziare!</p>';
-                return;
-            }
-
-            let historyHTML = '<div class="history-section"><h3>📊 Le tue misurazioni</h3>';
-            
-            userHistory.forEach((entry, index) => {
-                historyHTML += `
-                    <div class="history-item">
-                        <div style="font-weight: bold; margin-bottom: 5px;">
-                            ${entry.date} - ${entry.time}
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; font-size: 0.9rem;">
-                            <div>Peso: ${entry.weight}kg</div>
-                            <div>BMI: ${entry.bmi}</div>
-                            <div>BMR: ${entry.bmr} kcal</div>
-                            <div>TDEE: ${entry.tdee} kcal</div>
-                            <div>Obiettivo: ${entry.targetCalories} kcal</div>
-                            <div>Goal: ${entry.goal === 'lose' ? 'Perdere' : entry.goal === 'gain' ? 'Aumentare' : 'Mantenere'}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            historyHTML += '</div>';
-            historyContent.innerHTML = historyHTML;
-        }
-
-        function clearHistory() {
-            if (confirm('Sei sicuro di voler cancellare tutto lo storico? Questa azione non può essere annullata.')) {
-                localStorage.removeItem('fittracker_history');
-                userHistory = [];
-                updateHistoryDisplay();
-                alert('Storico cancellato con successo!');
-            }
-        }
-
-        // Funzioni di calcolo (rimangono uguali)
         function showTab(tabName) {
+            // Nascondi tutte le tab
             document.querySelectorAll('.card').forEach(card => card.classList.add('hidden'));
+            // Rimuovi active da tutti i bottoni
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             
+            // Mostra la tab selezionata
             document.getElementById(tabName + '-tab').classList.remove('hidden');
+            // Attiva il bottone
             event.target.classList.add('active');
         }
 
@@ -693,6 +427,7 @@
             const activity = parseFloat(document.getElementById('activity').value) || 1.55;
             const goal = document.getElementById('goal').value;
 
+            // Calcoli
             const bmi = calculateBMI(weight, height);
             const bmiInfo = getBMICategory(parseFloat(bmi));
             const bmr = calculateBMR(weight, height, age, gender);
@@ -704,16 +439,14 @@
 
             const macros = calculateMacros(targetCalories, goal);
 
+            // Salva i dati
             currentData = { age, gender, height, weight, activity, goal, bmi, bmr, tdee, targetCalories, macros, bmiInfo };
 
-            // Salva i dati
-            saveUserData();
-            saveToHistory();
-            loadHistory();
-
+            // Aggiorna UI
             updateStats();
             updateNutrition();
 
+            // Mostra le statistiche
             showTab('stats');
             document.querySelector('.tab[onclick="showTab(\'stats\')"]').click();
         }
@@ -755,12 +488,15 @@
             const weightDiff = Math.abs(currentWeight - targetWeight);
             const isLosing = currentWeight > targetWeight;
             
+            // Calcolo tempo stimato (perdita: 0.5kg/settimana, guadagno: 0.3kg/settimana)
             const weeklyRate = isLosing ? 0.5 : 0.3;
             const weeksNeeded = Math.ceil(weightDiff / weeklyRate);
             const monthsNeeded = Math.ceil(weeksNeeded / 4);
 
-            const progressPercent = Math.min(100, (weightDiff * 10));
+            // Progresso attuale (simulato)
+            const progressPercent = Math.min(100, (weightDiff * 10)); // Simulazione
 
+            // Aggiorna UI
             document.getElementById('progress-result').classList.remove('hidden');
             document.getElementById('progress-text').innerHTML = `
                 <strong>Peso attuale:</strong> ${currentWeight}kg → <strong>Obiettivo:</strong> ${targetWeight}kg<br>
@@ -770,4 +506,51 @@
             document.getElementById('progress-fill').style.width = Math.min(progressPercent, 100) + '%';
             
             document.getElementById('time-estimate').innerHTML = `
-                <h4>⏱️ Tempo stim
+                <h4>⏱️ Tempo stimato</h4>
+                <p><strong>${weeksNeeded} settimane</strong> (circa ${monthsNeeded} mes${monthsNeeded > 1 ? 'i' : 'e'})</p>
+            `;
+
+            // Raccomandazioni
+            let recommendations = '';
+            if (isLosing) {
+                recommendations = `
+                    <h4>💡 Raccomandazioni per perdere peso:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Mantieni un deficit calorico di 500 kcal/giorno</li>
+                        <li>Combina cardio (3-4 volte/settimana) con allenamento di forza</li>
+                        <li>Bevi almeno 2L di acqua al giorno</li>
+                        <li>Dormi 7-8 ore per notte</li>
+                    </ul>
+                `;
+            } else if (targetWeight > currentWeight) {
+                recommendations = `
+                    <h4>💡 Raccomandazioni per aumentare peso:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Surplus calorico di 300-500 kcal/giorno</li>
+                        <li>Focus su allenamento di forza 4-5 volte/settimana</li>
+                        <li>Aumenta l'assunzione di proteine</li>
+                        <li>Mangia ogni 3-4 ore</li>
+                    </ul>
+                `;
+            } else {
+                recommendations = `
+                    <h4>💡 Raccomandazioni per mantenere il peso:</h4>
+                    <ul style="margin-left: 20px; margin-top: 10px;">
+                        <li>Mantieni le calorie di mantenimento</li>
+                        <li>Allenamento misto: forza + cardio</li>
+                        <li>Monitora il peso settimanalmente</li>
+                        <li>Focus sulla composizione corporea</li>
+                    </ul>
+                `;
+            }
+            document.getElementById('recommendations').innerHTML = recommendations;
+        }
+
+        // Inizializzazione
+        document.addEventListener('DOMContentLoaded', function() {
+            // Calcola automaticamente con i valori predefiniti
+            setTimeout(calculateAll, 100);
+        });
+    </script>
+</body>
+</html>
